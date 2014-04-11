@@ -30,8 +30,8 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 using ALSharp;
+using MidiUtils.IO;
 using ux.Utils.Midi;
-using ux.Utils.Midi.IO;
 using uxPlayer.Properties;
 
 namespace uxPlayer

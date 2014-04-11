@@ -164,6 +164,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ux\MidiUtils\src\MidiUtils.csproj">
+      <Project>{65be0fa2-eb05-4128-9720-94e5aa442ac2}</Project>
+      <Name>MidiUtils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ux\ux.Utils\ux.Utils.csproj">
       <Project>{4c2f5341-9812-4e6b-822c-d30159a85cc8}</Project>
       <Name>ux.Utils</Name>

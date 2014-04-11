@@ -24,6 +24,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
 using System.Windows.Forms;
+using MidiUtils.Sequencer;
 using ux;
 using ux.Utils;
 using ux.Utils.Midi.Sequencer;
