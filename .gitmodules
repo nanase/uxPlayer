@@ -1,0 +1,3 @@
+[submodule "ux"]
+	path = ux
+	url = git@github.com:nanase/ux.git
