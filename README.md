@@ -37,6 +37,7 @@ Attribution 3.0 License.
 <http://creativecommons.org/licenses/by/3.0/>
 
 ## ライセンス
-Copyright &copy; 2013-2014 Tomona Nanase
 
-MIT ライセンス
+**MIT ライセンス**
+
+Copyright &copy; 2013-2014 Tomona Nanase
