@@ -106,29 +106,28 @@ namespace uxPlayer
                 = false;
             this.button_stop.Enabled = true;
 
-            int bit = this.radioButton_16bit.Checked ? 2 : 1;
-            int samplingRate = int.Parse(this.comboBox_samplingRate.Text.Substring(0, this.comboBox_samplingRate.Text.IndexOf(' ')));
-            int oversampling = (int)Math.Pow(2, this.trackBar_oversampling.Value);
+            ExportData data = new ExportData();
 
-            long filesize = (this.radioButton_unlimit.Checked) ?
+            data.Bit = this.radioButton_16bit.Checked ? 2 : 1;
+            data.SamplingRate = int.Parse(this.comboBox_samplingRate.Text.Substring(0, this.comboBox_samplingRate.Text.IndexOf(' ')));
+            data.Oversampling = (int)Math.Pow(2, this.trackBar_oversampling.Value);
+
+            data.FileSize = (this.radioButton_unlimit.Checked) ?
                 (long)Int32.MaxValue :
                     (this.radioButton_time.Checked) ?
-                    (long)((double)(this.numericUpDown_min.Value * 60m + this.numericUpDown_sec.Value) * samplingRate * 2.0 * bit) :
+                    (long)((double)(this.numericUpDown_min.Value * 60m + this.numericUpDown_sec.Value) * data.SamplingRate * 2.0 * data.Bit) :
                     (long)(this.numericUpDown_filesize.Value * 1024.0m * 1024.0m);
-            long output = 0;
 
-            bool sequenceEnded = false;
-
-            SmfConnector connector = new SmfConnector(samplingRate * oversampling);
+            data.Connector = new SmfConnector(data.SamplingRate * data.Oversampling);
             {
                 foreach (var presetFile in this.presetFiles)
-                    connector.AddPreset(presetFile);
+                    data.Connector.AddPreset(presetFile);
 
-                connector.Load(this.inputFile);
-                connector.Sequencer.SequenceEnd += (s2, e2) => { sequenceEnded = true; connector.Master.Release(); };
+                data.Connector.Load(this.inputFile);
+                data.Connector.Sequencer.SequenceEnd += (s2, e2) => { data.SequenceEnded = true; data.Connector.Master.Release(); };
 
-                this.masterControlDialog.ApplyToMaster(connector.Master);
-                this.masterControlDialog.ApplyToSequencer(connector.Sequencer);
+                this.masterControlDialog.ApplyToMaster(data.Connector.Master);
+                this.masterControlDialog.ApplyToSequencer(data.Connector.Sequencer);
             }
 
             if (!this.CheckFileCreate(this.textBox_saveto.Text))
@@ -139,93 +138,96 @@ namespace uxPlayer
 
             this.reqEnd = false;
 
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(() => this.ExportLoop(data), TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(() => this.UpdateLabelText(data), TaskCreationOptions.LongRunning);
+        }
+
+        private void ExportLoop(ExportData data)
+        {
+            using (FileStream fs = new FileStream(this.textBox_saveto.Text, FileMode.Create))
+            using (WaveFormatWriter wfw = new WaveFormatWriter(fs, data.SamplingRate, data.Bit * 8, 2))
             {
-                using (FileStream fs = new FileStream(this.textBox_saveto.Text, FileMode.Create))
-                using (WaveFormatWriter wfw = new WaveFormatWriter(fs, samplingRate, bit * 8, 2))
+                const int bufferSize = 512;
+                const int filterSize = 4096;
+
+                float[] buffer = new float[bufferSize];
+                double[] buffer_double = new double[filterSize];
+                double[] bufferOut = new double[filterSize];
+
+                SoundFilter filter = new SoundFilter(true, filterSize);
+                var filterGenerator = new LowPassFilter()
                 {
-                    const int bufferSize = 512;
-                    const int filterSize = 4096;
+                    SamplingRate = data.SamplingRate * data.Oversampling,
+                    CutoffFrequency = data.SamplingRate / 2 - ImpulseResponse.GetDelta(data.SamplingRate * data.Oversampling, filterSize)
+                };
+                double[] impulse = filterGenerator.Generate(filterSize / 2);
 
-                    float[] buffer = new float[bufferSize];
-                    double[] buffer_double = new double[filterSize];
-                    double[] bufferOut = new double[filterSize];
+                Window.Hanning(impulse);
+                filter.SetFilter(impulse);
 
-                    SoundFilter filter = new SoundFilter(true, filterSize);
-                    var filterGenerator = new LowPassFilter()
+                double bufferTime = (buffer.Length / 2.0) / (data.SamplingRate * data.Oversampling);
+
+                var filterBuffer = new FilterBuffer<float>(filterSize, da =>
+                {
+                    if (data.Oversampling > 1)
                     {
-                        SamplingRate = samplingRate * oversampling,
-                        CutoffFrequency = samplingRate / 2 - ImpulseResponse.GetDelta(samplingRate * oversampling, filterSize)
-                    };
-                    double[] impulse = filterGenerator.Generate(filterSize / 2);
+                        for (int i = 0; i < filterSize; i++)
+                            bufferOut[i] = da[i];
 
-                    Window.Hanning(impulse);
-                    filter.SetFilter(impulse);
+                        filter.Filtering(bufferOut);
 
-                    double bufferTime = (buffer.Length / 2.0) / (samplingRate * oversampling);
-
-                    var filterBuffer = new FilterBuffer<float>(filterSize, da =>
-                    {
-                        if (oversampling > 1)
+                        for (int i = 0, j = 0; i < filterSize; i += data.Oversampling * 2)
                         {
-                            for (int i = 0; i < filterSize; i++)
-                                bufferOut[i] = da[i];
-
-                            filter.Filtering(bufferOut);
-
-                            for (int i = 0, j = 0; i < filterSize; i += oversampling * 2)
-                            {
-                                buffer_double[j++] = bufferOut[i];
-                                buffer_double[j++] = bufferOut[i + 1];
-                            }
-
-                            wfw.Write(buffer_double, 0, (int)Math.Min(filterSize / oversampling, filesize - output));
+                            buffer_double[j++] = bufferOut[i];
+                            buffer_double[j++] = bufferOut[i + 1];
                         }
-                        else
-                            wfw.Write(da, 0, filterSize);
 
-                        output = wfw.WrittenBytes;
-                    });
-
-                    while (!this.reqEnd && filesize > output)
-                    {
-                        connector.Sequencer.Progress(bufferTime);
-                        connector.Master.Read(buffer, 0, bufferSize);
-
-                        filterBuffer.Push(buffer);
-
-                        if (sequenceEnded && connector.Master.ToneCount == 0)
-                            this.reqEnd = true;
+                        wfw.Write(buffer_double, 0, (int)Math.Min(filterSize / data.Oversampling, data.FileSize - data.Output));
                     }
+                    else
+                        wfw.Write(da, 0, filterSize);
 
-                    filterBuffer.Close();
+                    data.Output = wfw.WrittenBytes;
+                });
 
-                    this.reqEnd = true;
-                    this.Invoke(new Action(() => button4_Click(null, null)));
-                }
-            }, TaskCreationOptions.LongRunning);
-
-            Task.Factory.StartNew(() =>
-            {
-                TimeSpan ts;
-
-                while (!this.reqEnd)
+                while (!this.reqEnd && data.FileSize > data.Output)
                 {
-                    ts = TimeSpan.FromSeconds(output / 2.0 / bit / (double)samplingRate);
+                    data.Connector.Sequencer.Progress(bufferTime);
+                    data.Connector.Master.Read(buffer, 0, bufferSize);
 
-                    this.Invoke(new Action(() =>
-                    {
-                        long position = connector.Sequencer.Tick;
-                        this.label_progress.Text = String.Format("{0:p0}", (double)output / (double)filesize);
-                        this.progressBar.Value = (int)((double)output / (double)filesize * 100);
-                        this.label_filesize.Text = String.Format("出力: {0:f0} KB", output / 1024.0);
-                        this.label_tick.Text = String.Format("位置: {0}", position < 0 ? 0 : position);
-                        this.label_time.Text = String.Format("時間: {0}:{1:d2}", (int)ts.TotalMinutes, ts.Seconds);
-                    }));
+                    filterBuffer.Push(buffer);
 
-                    Thread.Sleep(30);
+                    if (data.SequenceEnded && data.Connector.Master.ToneCount == 0)
+                        this.reqEnd = true;
                 }
-            }, TaskCreationOptions.LongRunning);
+
+                filterBuffer.Close();
+
+                this.reqEnd = true;
+                this.Invoke(new Action(() => button4_Click(null, null)));
+            }
+        }
+
+        private void UpdateLabelText(ExportData data)
+        {
+            TimeSpan ts;
+
+            while (!this.reqEnd)
+            {
+                ts = TimeSpan.FromSeconds(data.Output / 2.0 / data.Bit / (double)data.SamplingRate);
+
+                this.Invoke(new Action(() =>
+                {
+                    long position = data.Connector.Sequencer.Tick;
+                    this.label_progress.Text = String.Format("{0:p0}", (double)data.Output / (double)data.FileSize);
+                    this.progressBar.Value = (int)((double)data.Output / (double)data.FileSize * 100);
+                    this.label_filesize.Text = String.Format("出力: {0:f0} KB", data.Output / 1024.0);
+                    this.label_tick.Text = String.Format("位置: {0}", position < 0 ? 0 : position);
+                    this.label_time.Text = String.Format("時間: {0}:{1:d2}", (int)ts.TotalMinutes, ts.Seconds);
+                }));
+
+                Thread.Sleep(30);
+            }
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -253,6 +255,17 @@ namespace uxPlayer
                 MessageBox.Show(ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
+        }
+    
+        class ExportData
+        {
+            public SmfConnector Connector { get; set; }
+            public long Output { get; set; }
+            public int SamplingRate { get; set; }
+            public int Bit { get; set; }
+            public long FileSize { get; set; }
+            public int Oversampling { get; set; }
+            public bool SequenceEnded { get; set; }
         }
     }
 }
