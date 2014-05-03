@@ -100,11 +100,7 @@ namespace uxPlayer
 
         private void button3_Click(object sender, EventArgs e)
         {
-            this.groupBox_type.Enabled = this.groupBox_oversampling.Enabled = this.groupBox_samplingRate.Enabled
-                = this.groupBox_size.Enabled = this.label_saveto.Enabled = this.textBox_saveto.Enabled
-                = this.button_open.Enabled = this.button_close.Enabled = this.button_start.Enabled
-                = false;
-            this.button_stop.Enabled = true;
+            this.SetControlState(true);
 
             ExportData data = new ExportData();
 
@@ -234,13 +230,7 @@ namespace uxPlayer
         {
             this.reqEnd = true;
 
-            this.groupBox_type.Enabled = this.groupBox_oversampling.Enabled = this.groupBox_samplingRate.Enabled
-                    = this.groupBox_size.Enabled = this.label_saveto.Enabled = this.textBox_saveto.Enabled
-                    = this.button_open.Enabled = this.button_close.Enabled = this.button_start.Enabled
-                    = true;
-            this.button_stop.Enabled = false;
-            this.progressBar.Value = 100;
-            this.label_progress.Text = "100%";
+            this.SetControlState(false);
         }
 
         private bool CheckFileCreate(string filename)
@@ -256,7 +246,19 @@ namespace uxPlayer
                 return false;
             }
         }
-    
+
+        private void SetControlState(bool start)
+        {
+            this.groupBox_type.Enabled = this.groupBox_oversampling.Enabled = this.groupBox_samplingRate.Enabled
+                    = this.groupBox_size.Enabled = this.label_saveto.Enabled = this.textBox_saveto.Enabled
+                    = this.button_open.Enabled = this.button_close.Enabled = this.button_start.Enabled
+                    = !start;
+
+            this.button_stop.Enabled = start;
+            this.progressBar.Value = start ? 0 : 100;
+            this.label_progress.Text =  start ? "0%" : "100%";
+        }
+
         class ExportData
         {
             public SmfConnector Connector { get; set; }
