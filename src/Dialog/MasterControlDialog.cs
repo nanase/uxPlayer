@@ -27,7 +27,6 @@ using System.Windows.Forms;
 using MidiUtils.Sequencer;
 using ux;
 using ux.Utils;
-using ux.Utils.Midi.Sequencer;
 using uxPlayer.Properties;
 
 namespace uxPlayer
