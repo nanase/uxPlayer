@@ -79,72 +79,6 @@ namespace uxPlayer
             this.radioButton_size_CheckedChanged(null, null);
         }
 
-        private void radioButton_size_CheckedChanged(object sender, EventArgs e)
-        {
-            this.numericUpDown_min.Enabled = this.numericUpDown_sec.Enabled = this.label_min.Enabled = this.label_sec.Enabled = this.radioButton_time.Checked;
-            this.numericUpDown_filesize.Enabled = this.label_mb.Enabled = this.radioButton_filesize.Checked;
-        }
-
-        private void trackBar_oversampling_ValueChanged(object sender, EventArgs e)
-        {
-            if (this.trackBar_oversampling.Value == 0)
-                this.label_oversampling.Text = "x1 (無効)";
-            else
-                this.label_oversampling.Text = String.Format("x{0:f0}", Math.Pow(2, this.trackBar_oversampling.Value));
-        }
-
-        private void button_open_Click(object sender, EventArgs e)
-        {
-            if (this.saveFileDialog.ShowDialog()
-                == System.Windows.Forms.DialogResult.OK)
-                this.textBox_saveto.Text = this.saveFileDialog.FileName;
-        }
-
-        private void button_close_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void button_start_Click(object sender, EventArgs e)
-        {
-            this.SetControlState(true);
-
-            ExportData data = new ExportData();
-
-            data.Bit = this.radioButton_16bit.Checked ? 2 : 1;
-            data.SamplingRate = int.Parse(this.comboBox_samplingRate.Text.Substring(0, this.comboBox_samplingRate.Text.IndexOf(' ')));
-            data.Oversampling = (int)Math.Pow(2, this.trackBar_oversampling.Value);
-
-            data.FileSize = (this.radioButton_unlimit.Checked) ?
-                (long)Int32.MaxValue :
-                    (this.radioButton_time.Checked) ?
-                    (long)((double)(this.numericUpDown_min.Value * 60m + this.numericUpDown_sec.Value) * data.SamplingRate * 2.0 * data.Bit) :
-                    (long)(this.numericUpDown_filesize.Value * 1024.0m * 1024.0m);
-
-            data.Connector = new SmfConnector(data.SamplingRate * data.Oversampling);
-            {
-                foreach (var presetFile in this.presetFiles)
-                    data.Connector.AddPreset(presetFile);
-
-                data.Connector.Load(this.inputFile);
-                data.Connector.Sequencer.SequenceEnd += (s2, e2) => { data.SequenceEnded = true; data.Connector.Master.Release(); };
-
-                this.masterControlDialog.ApplyToMaster(data.Connector.Master);
-                this.masterControlDialog.ApplyToSequencer(data.Connector.Sequencer);
-            }
-
-            if (!this.CheckFileCreate(this.textBox_saveto.Text))
-            {
-                button_stop_Click(null, null);
-                return;
-            }
-
-            this.reqEnd = false;
-
-            Task.Factory.StartNew(() => this.ExportLoop(data), TaskCreationOptions.LongRunning);
-            Task.Factory.StartNew(() => this.UpdateLabelText(data), TaskCreationOptions.LongRunning);
-        }
-
         private void ExportLoop(ExportData data)
         {
             using (FileStream fs = new FileStream(this.textBox_saveto.Text, FileMode.Create))
@@ -233,13 +167,6 @@ namespace uxPlayer
             }
         }
 
-        private void button_stop_Click(object sender, EventArgs e)
-        {
-            this.reqEnd = true;
-
-            this.SetControlState(false);
-        }
-
         private bool CheckFileCreate(string filename)
         {
             try
@@ -265,6 +192,81 @@ namespace uxPlayer
             this.progressBar.Value = start ? 0 : 100;
             this.label_progress.Text =  start ? "0%" : "100%";
         }
+
+        #region Controls
+        private void button_open_Click(object sender, EventArgs e)
+        {
+            if (this.saveFileDialog.ShowDialog()
+                == System.Windows.Forms.DialogResult.OK)
+                this.textBox_saveto.Text = this.saveFileDialog.FileName;
+        }
+
+        private void button_close_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void button_start_Click(object sender, EventArgs e)
+        {
+            this.SetControlState(true);
+
+            ExportData data = new ExportData();
+
+            data.Bit = this.radioButton_16bit.Checked ? 2 : 1;
+            data.SamplingRate = int.Parse(this.comboBox_samplingRate.Text.Substring(0, this.comboBox_samplingRate.Text.IndexOf(' ')));
+            data.Oversampling = (int)Math.Pow(2, this.trackBar_oversampling.Value);
+
+            data.FileSize = (this.radioButton_unlimit.Checked) ?
+                (long)Int32.MaxValue :
+                    (this.radioButton_time.Checked) ?
+                    (long)((double)(this.numericUpDown_min.Value * 60m + this.numericUpDown_sec.Value) * data.SamplingRate * 2.0 * data.Bit) :
+                    (long)(this.numericUpDown_filesize.Value * 1024.0m * 1024.0m);
+
+            data.Connector = new SmfConnector(data.SamplingRate * data.Oversampling);
+            {
+                foreach (var presetFile in this.presetFiles)
+                    data.Connector.AddPreset(presetFile);
+
+                data.Connector.Load(this.inputFile);
+                data.Connector.Sequencer.SequenceEnd += (s2, e2) => { data.SequenceEnded = true; data.Connector.Master.Release(); };
+
+                this.masterControlDialog.ApplyToMaster(data.Connector.Master);
+                this.masterControlDialog.ApplyToSequencer(data.Connector.Sequencer);
+            }
+
+            if (!this.CheckFileCreate(this.textBox_saveto.Text))
+            {
+                button_stop_Click(null, null);
+                return;
+            }
+
+            this.reqEnd = false;
+
+            Task.Factory.StartNew(() => this.ExportLoop(data), TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(() => this.UpdateLabelText(data), TaskCreationOptions.LongRunning);
+        }
+
+        private void button_stop_Click(object sender, EventArgs e)
+        {
+            this.reqEnd = true;
+
+            this.SetControlState(false);
+        }
+
+        private void radioButton_size_CheckedChanged(object sender, EventArgs e)
+        {
+            this.numericUpDown_min.Enabled = this.numericUpDown_sec.Enabled = this.label_min.Enabled = this.label_sec.Enabled = this.radioButton_time.Checked;
+            this.numericUpDown_filesize.Enabled = this.label_mb.Enabled = this.radioButton_filesize.Checked;
+        }
+
+        private void trackBar_oversampling_ValueChanged(object sender, EventArgs e)
+        {
+            if (this.trackBar_oversampling.Value == 0)
+                this.label_oversampling.Text = "x1 (無効)";
+            else
+                this.label_oversampling.Text = String.Format("x{0:f0}", Math.Pow(2, this.trackBar_oversampling.Value));
+        }
+        #endregion
         #endregion
 
         class ExportData
