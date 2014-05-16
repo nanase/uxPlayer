@@ -114,6 +114,7 @@ namespace uxPlayer
             }
         }
 
+        #region Controls        
         private void button_reset_Click(object sender, EventArgs e)
         {
             this.trackBar_mastervolume.Value = 100;
@@ -145,6 +146,7 @@ namespace uxPlayer
             this.ApplyToSequencer(this.sequencer);
             this.label_tempo.Text = String.Format("{0:p0}", this.trackBar_tempo.Value / 100.0f);
         }
+        #endregion
         #endregion
     }
 }
