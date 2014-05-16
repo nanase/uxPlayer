@@ -67,120 +67,6 @@ namespace uxPlayer
         #endregion
 
         #region -- Private Methods --
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-            this.monitorBuffer = new float[2048];
-            this.monitor = new WaveformMonitor(Color.FromArgb(139, 229, 139), this.monitorBox.Size);
-            this.monitorBox.Image = this.monitor.Bitmap;
-
-            this.volumeMonitor = new VolumeMonitor(Color.FromArgb(139, 229, 139), this.volumeMonitorBox.Size);
-            this.volumeMonitorBox.Image = this.volumeMonitor.Bitmap;
-
-            Func<float[], int, int, int> process = (buffer, offset, count) =>
-            {
-                int k = connector.Master.Read(buffer, offset, count);
-
-                if (this.monitorBuffer.Length != buffer.Length)
-                    this.monitorBuffer = new float[buffer.Length];
-
-                buffer.CopyTo(this.monitorBuffer, 0);
-
-                return k;
-            };
-
-            var setting = new PlayerSettings()
-            {
-                BufferSize = 1024 * 2,
-                BufferCount = 16,
-                BitPerSample = 16,
-                SamplingFrequency = frequencty
-            };
-
-            this.player = new SinglePlayer(process, setting);
-
-            this.playing = true;
-            this.Stop();
-        }
-
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            this.Stop();
-
-            this.connector.Dispose();
-            this.player.Dispose();
-        }
-
-        private void hScrollBar_Scroll(object sender, ScrollEventArgs e)
-        {
-            if (this.mode_smf && this.playing)
-            {
-                SmfConnector smf = (SmfConnector)this.connector;
-
-                if (smf.Sequencer != null)
-                {
-                    smf.Sequencer.Tick = this.hScrollBar.Value;
-                    this.connector.Master.Silence();
-                }
-            }
-        }
-
-        #region Monitor
-        private void monitorTimer_Tick(object sender, EventArgs e)
-        {
-            if (!this.playing)
-                return;
-
-            if (this.monitor != null)
-            {
-                this.monitor.Draw(this.monitorBuffer);
-                this.monitorBox.Refresh();
-            }
-
-            if (this.volumeMonitor != null)
-            {
-                this.volumeMonitor.Draw(this.monitorBuffer);
-                this.volumeMonitorBox.Refresh();
-            }
-        }
-
-        private void menu_noMonitor_Click(object sender, EventArgs e)
-        {
-            if (this.monitor != null)
-                this.monitor.Dispose();
-
-            this.monitor = null;
-            this.monitorBox.Image = null;
-        }
-
-        private void menu_waveform_Click(object sender, EventArgs e)
-        {
-            if (this.monitor != null)
-                this.monitor.Dispose();
-
-            this.monitor = new WaveformMonitor(this.monitorBox.BackColor, this.monitorBox.Size);
-            this.monitorBox.Image = this.monitor.Bitmap;
-        }
-
-        private void menu_spectrum_Click(object sender, EventArgs e)
-        {
-            if (this.monitor != null)
-                this.monitor.Dispose();
-
-            this.monitor = new FrequencyMonitor(this.monitorBox.BackColor, this.monitorBox.Size);
-            this.monitorBox.Image = this.monitor.Bitmap;
-        }
-
-        private void menu_historyClick(object sender, EventArgs e)
-        {
-            if (this.monitor != null)
-                this.monitor.Dispose();
-
-            this.monitor = new FrequencySpectrumMonitor(this.monitorBox.BackColor, this.monitorBox.Size);
-            this.monitorBox.Image = this.monitor.Bitmap;
-        }
-        #endregion
-
-        #region Control
         private void Play()
         {
             if (this.playing)
@@ -430,6 +316,119 @@ namespace uxPlayer
             this.AllReset();
             this.Play();
         }
+
+        #region Controls
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            this.monitorBuffer = new float[2048];
+            this.monitor = new WaveformMonitor(Color.FromArgb(139, 229, 139), this.monitorBox.Size);
+            this.monitorBox.Image = this.monitor.Bitmap;
+
+            this.volumeMonitor = new VolumeMonitor(Color.FromArgb(139, 229, 139), this.volumeMonitorBox.Size);
+            this.volumeMonitorBox.Image = this.volumeMonitor.Bitmap;
+
+            Func<float[], int, int, int> process = (buffer, offset, count) =>
+            {
+                int k = connector.Master.Read(buffer, offset, count);
+
+                if (this.monitorBuffer.Length != buffer.Length)
+                    this.monitorBuffer = new float[buffer.Length];
+
+                buffer.CopyTo(this.monitorBuffer, 0);
+
+                return k;
+            };
+
+            var setting = new PlayerSettings()
+            {
+                BufferSize = 1024 * 2,
+                BufferCount = 16,
+                BitPerSample = 16,
+                SamplingFrequency = frequencty
+            };
+
+            this.player = new SinglePlayer(process, setting);
+
+            this.playing = true;
+            this.Stop();
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Stop();
+
+            this.connector.Dispose();
+            this.player.Dispose();
+        }
+
+        private void hScrollBar_Scroll(object sender, ScrollEventArgs e)
+        {
+            if (this.mode_smf && this.playing)
+            {
+                SmfConnector smf = (SmfConnector)this.connector;
+
+                if (smf.Sequencer != null)
+                {
+                    smf.Sequencer.Tick = this.hScrollBar.Value;
+                    this.connector.Master.Silence();
+                }
+            }
+        }
+
+        #region Monitor
+        private void monitorTimer_Tick(object sender, EventArgs e)
+        {
+            if (!this.playing)
+                return;
+
+            if (this.monitor != null)
+            {
+                this.monitor.Draw(this.monitorBuffer);
+                this.monitorBox.Refresh();
+            }
+
+            if (this.volumeMonitor != null)
+            {
+                this.volumeMonitor.Draw(this.monitorBuffer);
+                this.volumeMonitorBox.Refresh();
+            }
+        }
+
+        private void menu_noMonitor_Click(object sender, EventArgs e)
+        {
+            if (this.monitor != null)
+                this.monitor.Dispose();
+
+            this.monitor = null;
+            this.monitorBox.Image = null;
+        }
+
+        private void menu_waveform_Click(object sender, EventArgs e)
+        {
+            if (this.monitor != null)
+                this.monitor.Dispose();
+
+            this.monitor = new WaveformMonitor(this.monitorBox.BackColor, this.monitorBox.Size);
+            this.monitorBox.Image = this.monitor.Bitmap;
+        }
+
+        private void menu_spectrum_Click(object sender, EventArgs e)
+        {
+            if (this.monitor != null)
+                this.monitor.Dispose();
+
+            this.monitor = new FrequencyMonitor(this.monitorBox.BackColor, this.monitorBox.Size);
+            this.monitorBox.Image = this.monitor.Bitmap;
+        }
+
+        private void menu_historyClick(object sender, EventArgs e)
+        {
+            if (this.monitor != null)
+                this.monitor.Dispose();
+
+            this.monitor = new FrequencySpectrumMonitor(this.monitorBox.BackColor, this.monitorBox.Size);
+            this.monitorBox.Image = this.monitor.Bitmap;
+        }
         #endregion
 
         #region ToolStrip
@@ -620,6 +619,7 @@ namespace uxPlayer
                     this.RefreshPresets();
                 }
         }
+        #endregion
         #endregion
         #endregion
     }
