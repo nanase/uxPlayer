@@ -32,11 +32,14 @@ namespace uxPlayer
 {
     public partial class PresetManageDialog : Form
     {
+        #region -- Public Properties --
         public IEnumerable<string> FileNames
         {
             get { return this.listView_presets.Items.OfType<ListViewItem>().Select(i => i.Text); }
         }
+        #endregion
 
+        #region -- Constructors --
         public PresetManageDialog(IEnumerable<string> fileNames)
         {
             InitializeComponent();
@@ -44,7 +47,9 @@ namespace uxPlayer
             this.listView_presets.Items.AddRange(fileNames.Select(f => new ListViewItem(f, 0)).ToArray());
             this.UpdateListItemStatus();
         }
+        #endregion
 
+        #region -- Private Methods --
         private void UpdateListItemStatus()
         {
             foreach (ListViewItem item in this.listView_presets.Items)
@@ -54,6 +59,7 @@ namespace uxPlayer
             }
         }
 
+        #region Controls
         private void button_add_Click(object sender, EventArgs e)
         {
             if (this.openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -74,5 +80,7 @@ namespace uxPlayer
 
             this.UpdateListItemStatus();
         }
+        #endregion
+        #endregion
     }
 }
