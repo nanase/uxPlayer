@@ -146,7 +146,7 @@
             this.trackBar_oversampling.Size = new System.Drawing.Size(161, 45);
             this.trackBar_oversampling.TabIndex = 0;
             this.trackBar_oversampling.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.trackBar_oversampling.ValueChanged += new System.EventHandler(this.trackBar1_ValueChanged);
+            this.trackBar_oversampling.ValueChanged += new System.EventHandler(this.trackBar_oversampling_ValueChanged);
             // 
             // groupBox_samplingRate
             // 
@@ -209,7 +209,7 @@
             this.radioButton_unlimit.TabStop = true;
             this.radioButton_unlimit.Text = "無制限";
             this.radioButton_unlimit.UseVisualStyleBackColor = true;
-            this.radioButton_unlimit.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
+            this.radioButton_unlimit.CheckedChanged += new System.EventHandler(this.radioButton_size_CheckedChanged);
             // 
             // label_sec
             // 
@@ -298,7 +298,7 @@
             this.radioButton_filesize.TabIndex = 1;
             this.radioButton_filesize.Text = "ファイルサイズ指定";
             this.radioButton_filesize.UseVisualStyleBackColor = true;
-            this.radioButton_filesize.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
+            this.radioButton_filesize.CheckedChanged += new System.EventHandler(this.radioButton_size_CheckedChanged);
             // 
             // radioButton_time
             // 
@@ -309,7 +309,7 @@
             this.radioButton_time.TabIndex = 0;
             this.radioButton_time.Text = "時間指定";
             this.radioButton_time.UseVisualStyleBackColor = true;
-            this.radioButton_time.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
+            this.radioButton_time.CheckedChanged += new System.EventHandler(this.radioButton_size_CheckedChanged);
             // 
             // progressBar
             // 
@@ -333,7 +333,7 @@
             this.button_open.TabIndex = 6;
             this.button_open.Text = "参照...";
             this.button_open.UseVisualStyleBackColor = true;
-            this.button_open.Click += new System.EventHandler(this.button1_Click);
+            this.button_open.Click += new System.EventHandler(this.button_open_Click);
             // 
             // button_close
             // 
@@ -343,7 +343,7 @@
             this.button_close.TabIndex = 7;
             this.button_close.Text = "閉じる";
             this.button_close.UseVisualStyleBackColor = true;
-            this.button_close.Click += new System.EventHandler(this.button2_Click);
+            this.button_close.Click += new System.EventHandler(this.button_close_Click);
             // 
             // groupBox_progress
             // 
@@ -414,7 +414,7 @@
             this.button_start.TabIndex = 10;
             this.button_start.Text = "開始";
             this.button_start.UseVisualStyleBackColor = true;
-            this.button_start.Click += new System.EventHandler(this.button3_Click);
+            this.button_start.Click += new System.EventHandler(this.button_start_Click);
             // 
             // button_stop
             // 
@@ -425,7 +425,7 @@
             this.button_stop.TabIndex = 11;
             this.button_stop.Text = "中止";
             this.button_stop.UseVisualStyleBackColor = true;
-            this.button_stop.Click += new System.EventHandler(this.button4_Click);
+            this.button_stop.Click += new System.EventHandler(this.button_stop_Click);
             // 
             // ExportDialog
             // 

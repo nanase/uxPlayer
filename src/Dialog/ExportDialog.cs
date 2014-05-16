@@ -69,16 +69,16 @@ namespace uxPlayer
         {
             this.comboBox_type.SelectedIndex = 0;
             this.comboBox_samplingRate.SelectedIndex = 7;
-            this.radioButton3_CheckedChanged(null, null);
+            this.radioButton_size_CheckedChanged(null, null);
         }
 
-        private void radioButton3_CheckedChanged(object sender, EventArgs e)
+        private void radioButton_size_CheckedChanged(object sender, EventArgs e)
         {
             this.numericUpDown_min.Enabled = this.numericUpDown_sec.Enabled = this.label_min.Enabled = this.label_sec.Enabled = this.radioButton_time.Checked;
             this.numericUpDown_filesize.Enabled = this.label_mb.Enabled = this.radioButton_filesize.Checked;
         }
 
-        private void trackBar1_ValueChanged(object sender, EventArgs e)
+        private void trackBar_oversampling_ValueChanged(object sender, EventArgs e)
         {
             if (this.trackBar_oversampling.Value == 0)
                 this.label_oversampling.Text = "x1 (無効)";
@@ -86,19 +86,19 @@ namespace uxPlayer
                 this.label_oversampling.Text = String.Format("x{0:f0}", Math.Pow(2, this.trackBar_oversampling.Value));
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button_open_Click(object sender, EventArgs e)
         {
             if (this.saveFileDialog.ShowDialog()
                 == System.Windows.Forms.DialogResult.OK)
                 this.textBox_saveto.Text = this.saveFileDialog.FileName;
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void button_close_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void button_start_Click(object sender, EventArgs e)
         {
             this.SetControlState(true);
 
@@ -128,7 +128,7 @@ namespace uxPlayer
 
             if (!this.CheckFileCreate(this.textBox_saveto.Text))
             {
-                button4_Click(null, null);
+                button_stop_Click(null, null);
                 return;
             }
 
@@ -200,7 +200,7 @@ namespace uxPlayer
                 filterBuffer.Close();
 
                 this.reqEnd = true;
-                this.Invoke(new Action(() => button4_Click(null, null)));
+                this.Invoke(new Action(() => button_stop_Click(null, null)));
             }
         }
 
@@ -226,7 +226,7 @@ namespace uxPlayer
             }
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void button_stop_Click(object sender, EventArgs e)
         {
             this.reqEnd = true;
 
