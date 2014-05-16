@@ -269,6 +269,7 @@ namespace uxPlayer
 
         class ExportData
         {
+            #region -- Public Properties --
             public SmfConnector Connector { get; set; }
             public long Output { get; set; }
             public int SamplingRate { get; set; }
@@ -276,6 +277,7 @@ namespace uxPlayer
             public long FileSize { get; set; }
             public int Oversampling { get; set; }
             public bool SequenceEnded { get; set; }
+            #endregion
         }
     }
 }
