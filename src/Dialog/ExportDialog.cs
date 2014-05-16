@@ -39,11 +39,14 @@ namespace uxPlayer
 {
     partial class ExportDialog : Form
     {
+        #region -- Private Fields --
         private string inputFile;
         private IEnumerable<string> presetFiles;
         private volatile bool reqEnd;
         private MasterControlDialog masterControlDialog;
+        #endregion
 
+        #region -- Constructors --
         public ExportDialog(string inputFile, IEnumerable<string> presetFiles, MasterControlDialog masterControlDialog)
         {
             this.inputFile = inputFile;
@@ -51,7 +54,9 @@ namespace uxPlayer
             this.masterControlDialog = masterControlDialog;
             InitializeComponent();
         }
+        #endregion
 
+        #region -- Protected Methods --
         protected override CreateParams CreateParams
         {
             [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
@@ -64,7 +69,9 @@ namespace uxPlayer
                 return cp;
             }
         }
+        #endregion
 
+        #region -- Private Methods --
         private void ExportDialog_Load(object sender, EventArgs e)
         {
             this.comboBox_type.SelectedIndex = 0;
@@ -258,6 +265,7 @@ namespace uxPlayer
             this.progressBar.Value = start ? 0 : 100;
             this.label_progress.Text =  start ? "0%" : "100%";
         }
+        #endregion
 
         class ExportData
         {
