@@ -54,7 +54,7 @@ namespace uxPlayer
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button_add_Click(object sender, EventArgs e)
         {
             if (this.openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
@@ -65,7 +65,7 @@ namespace uxPlayer
             this.UpdateListItemStatus();
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void button_remove_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem item in this.listView_presets.SelectedItems)
             {

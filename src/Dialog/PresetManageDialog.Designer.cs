@@ -68,7 +68,7 @@
             this.button_add.TabIndex = 1;
             this.button_add.Text = "追加";
             this.button_add.UseVisualStyleBackColor = true;
-            this.button_add.Click += new System.EventHandler(this.button1_Click);
+            this.button_add.Click += new System.EventHandler(this.button_add_Click);
             // 
             // button_remove
             // 
@@ -79,7 +79,7 @@
             this.button_remove.TabIndex = 2;
             this.button_remove.Text = "削除";
             this.button_remove.UseVisualStyleBackColor = true;
-            this.button_remove.Click += new System.EventHandler(this.button2_Click);
+            this.button_remove.Click += new System.EventHandler(this.button_remove_Click);
             // 
             // button_close
             // 
