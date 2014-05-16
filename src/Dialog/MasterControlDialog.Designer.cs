@@ -61,7 +61,7 @@
             this.trackBar_mastervolume.TickFrequency = 20;
             this.trackBar_mastervolume.TickStyle = System.Windows.Forms.TickStyle.Both;
             this.trackBar_mastervolume.Value = 100;
-            this.trackBar_mastervolume.ValueChanged += new System.EventHandler(this.trackBar1_ValueChanged);
+            this.trackBar_mastervolume.ValueChanged += new System.EventHandler(this.trackBar_masterVolume_ValueChanged);
             // 
             // groupBox_mastervolume
             // 
@@ -120,7 +120,7 @@
             this.trackBar_compressor_ratio.TickFrequency = 100;
             this.trackBar_compressor_ratio.TickStyle = System.Windows.Forms.TickStyle.Both;
             this.trackBar_compressor_ratio.Value = 200;
-            this.trackBar_compressor_ratio.ValueChanged += new System.EventHandler(this.trackBar2_ValueChanged);
+            this.trackBar_compressor_ratio.ValueChanged += new System.EventHandler(this.trackBar_compressor_ratio_ValueChanged);
             // 
             // groupBox_compressor_threshold
             // 
@@ -155,7 +155,7 @@
             this.trackBar_compressor_threshold.TickFrequency = 10;
             this.trackBar_compressor_threshold.TickStyle = System.Windows.Forms.TickStyle.Both;
             this.trackBar_compressor_threshold.Value = 80;
-            this.trackBar_compressor_threshold.ValueChanged += new System.EventHandler(this.trackBar3_ValueChanged);
+            this.trackBar_compressor_threshold.ValueChanged += new System.EventHandler(this.trackBar_compressor_threshold_ValueChanged);
             // 
             // groupBox_tempo
             // 
@@ -191,7 +191,7 @@
             this.trackBar_tempo.TickFrequency = 10;
             this.trackBar_tempo.TickStyle = System.Windows.Forms.TickStyle.Both;
             this.trackBar_tempo.Value = 100;
-            this.trackBar_tempo.ValueChanged += new System.EventHandler(this.trackBar4_ValueChanged);
+            this.trackBar_tempo.ValueChanged += new System.EventHandler(this.trackBar_tempo_ValueChanged);
             // 
             // button_reset
             // 
@@ -201,7 +201,7 @@
             this.button_reset.TabIndex = 5;
             this.button_reset.Text = "リセット";
             this.button_reset.UseVisualStyleBackColor = true;
-            this.button_reset.Click += new System.EventHandler(this.button1_Click);
+            this.button_reset.Click += new System.EventHandler(this.button_reset_Click);
             // 
             // MasterControlDialog
             // 

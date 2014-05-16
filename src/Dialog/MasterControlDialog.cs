@@ -114,7 +114,7 @@ namespace uxPlayer
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button_reset_Click(object sender, EventArgs e)
         {
             this.trackBar_mastervolume.Value = 100;
             this.trackBar_compressor_ratio.Value = 200;
@@ -122,25 +122,25 @@ namespace uxPlayer
             this.trackBar_tempo.Value = 100;
         }
 
-        private void trackBar1_ValueChanged(object sender, EventArgs e)
+        private void trackBar_masterVolume_ValueChanged(object sender, EventArgs e)
         {
             this.ApplyToMaster(this.master);
             this.label_mastervolume.Text = String.Format("{0:p0}", this.trackBar_mastervolume.Value / 100.0f);
         }
 
-        private void trackBar2_ValueChanged(object sender, EventArgs e)
+        private void trackBar_compressor_ratio_ValueChanged(object sender, EventArgs e)
         {
             this.ApplyToMaster(this.master);
             this.label_compressor_ratio.Text = String.Format("1:{0:f2}", this.trackBar_compressor_ratio.Value / 100.0f);
         }
 
-        private void trackBar3_ValueChanged(object sender, EventArgs e)
+        private void trackBar_compressor_threshold_ValueChanged(object sender, EventArgs e)
         {
             this.ApplyToMaster(this.master);
             this.label_compressor_threshold.Text = String.Format("{0:f2}", this.trackBar_compressor_threshold.Value / 100.0f);
         }
 
-        private void trackBar4_ValueChanged(object sender, EventArgs e)
+        private void trackBar_tempo_ValueChanged(object sender, EventArgs e)
         {
             this.ApplyToSequencer(this.sequencer);
             this.label_tempo.Text = String.Format("{0:p0}", this.trackBar_tempo.Value / 100.0f);
